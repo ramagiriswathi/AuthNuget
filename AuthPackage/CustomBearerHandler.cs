@@ -1,4 +1,4 @@
-﻿using AuthPackage;
+using AuthPackage;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,23 +16,23 @@ using System.Threading.Tasks;
 // Correct one
 public class CustomJwtBearerHandler : JwtBearerHandler
 {
-    private readonly string _bffUrl; 
+    private readonly string _bffUrl;
     private readonly IPublicKeyService _publicKeyService;
 
-    public CustomJwtBearerHandler(IOptionsMonitor<JwtBearerOptions> options, 
-        ILoggerFactory logger, UrlEncoder encoder, HttpClient httpClient, string bffUrl, 
-        IPublicKeyService publicKeyService) 
-        : base(options, logger, encoder) 
+    public CustomJwtBearerHandler(IOptionsMonitor<JwtBearerOptions> options,
+        ILoggerFactory logger, UrlEncoder encoder, HttpClient httpClient, string bffUrl,
+        IPublicKeyService publicKeyService)
+        : base(options, logger, encoder)
     {
-        _bffUrl = bffUrl ??  throw new ArgumentNullException(nameof(bffUrl));
+        _bffUrl = bffUrl ?? throw new ArgumentNullException(nameof(bffUrl));
         _publicKeyService = publicKeyService;
     }
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var token = GetBearerToken();
+        var token = GetTokenFromRequestHeader();
         if (string.IsNullOrEmpty(token))
-        { 
-            return AuthenticateResult.NoResult(); 
+        {
+            return AuthenticateResult.NoResult();
         }
         try
         {
@@ -65,25 +65,28 @@ public class CustomJwtBearerHandler : JwtBearerHandler
             // Delegate the actual token validation to the base JwtBearerHandler
             return await base.HandleAuthenticateAsync();
         }
-        catch (SecurityTokenException ex) 
-        { 
-            Logger.LogError($"Token validation failed: {ex.Message}"); 
-            return AuthenticateResult.Fail(ex); 
+        catch (SecurityTokenException ex)
+        {
+            Logger.LogError($"Token validation failed: {ex.Message}");
+            return AuthenticateResult.Fail("Invalid token.");
         }
-        catch (Exception ex) 
-        { 
+        catch (Exception ex)
+        {
             Logger.LogError($"Authentication error: {ex.Message}");
-            return AuthenticateResult.Fail(ex); 
+            return AuthenticateResult.Fail("Invalid token.");
         }
     }
-   
-    private string GetBearerToken()
+
+    private string? GetTokenFromRequestHeader()
     {
-        string authorization = Request.Headers["Authorization"];
-        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        if (Request.Headers.ContainsKey("Authorization"))
         {
-            throw new Exception(""); //TODO: Custom exception
+            string authHeader = Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrWhiteSpace(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                return authHeader.Substring("Bearer ".Length).Trim();
+            }
         }
-        return authorization.Substring("Bearer ".Length).Trim();
+        return null;
     }
 }

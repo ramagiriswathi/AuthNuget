@@ -56,7 +56,7 @@ namespace AuthPackage
             return builder.AddScheme<JwtBearerOptions, CustomJwtBearerHandler>(JwtBearerDefaults.AuthenticationScheme, configureOptions);
         }
 
-        public static IServiceCollection AddFdcJwtBearer(this IServiceCollection services, Action<FdcAuthOptions> configureOptions)
+        public static IServiceCollection AddFdcJwtBearer(this IServiceCollection services, Action<FdcAuthOptions> configureOptions, Action<JwtBearerOptions>? configureJwtOptions = null)
         {
             services.Configure(configureOptions);
             services.AddHttpClient();
@@ -64,16 +64,18 @@ namespace AuthPackage
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;                
             }).AddFdcJwtBearer(options =>
-            {
+            {               
                 options.TokenValidationParameters = new()
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true                    
                 };
+
+                configureJwtOptions?.Invoke(options);
             });
             return services;
         }

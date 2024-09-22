@@ -11,7 +11,7 @@ namespace AuthPackage
             _httpClient = httpClientFactory.CreateClient();
         }
 
-        public async Task<IEnumerable<SecurityKey>> GetSigningKeysFromJwkAsync(string bffUrl)
+        public async Task<IEnumerable<SecurityKey>> GetSigningKeysFromJwkAsync(Uri bffUrl)
         {
             HttpResponseMessage response = await _httpClient.GetAsync(bffUrl);
             response.EnsureSuccessStatusCode();

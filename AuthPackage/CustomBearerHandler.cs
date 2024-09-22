@@ -18,13 +18,14 @@ public class CustomJwtBearerHandler : JwtBearerHandler
 {
     private readonly string _bffUrl;
     private readonly IPublicKeyService _publicKeyService;
+    private readonly FdcAuthOptions _fdcOptions;
 
     public CustomJwtBearerHandler(IOptionsMonitor<JwtBearerOptions> options,
-        ILoggerFactory logger, UrlEncoder encoder, HttpClient httpClient, string bffUrl,
+        ILoggerFactory logger, UrlEncoder encoder, HttpClient httpClient, IOptions<FdcAuthOptions> fdcAuthOptions,
         IPublicKeyService publicKeyService)
         : base(options, logger, encoder)
     {
-        _bffUrl = bffUrl ?? throw new ArgumentNullException(nameof(bffUrl));
+      //  _bffUrl = bffUrl ?? throw new ArgumentNullException(nameof(bffUrl));
         _publicKeyService = publicKeyService;
     }
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -37,7 +38,7 @@ public class CustomJwtBearerHandler : JwtBearerHandler
         try
         {
             // Fetch the JWS key set from the public key service
-            var signingKeys = await _publicKeyService.GetSigningKeysFromJwkAsync(_bffUrl);
+            var signingKeys = await _publicKeyService.GetSigningKeysFromJwkAsync(_fdcOptions.SigningKeysUri);
 
             // Configure token validation parameters
             var validationParameters = new TokenValidationParameters

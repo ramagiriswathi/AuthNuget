@@ -21,6 +21,9 @@ namespace ProtectedAPI
             builder.Services.AddFdcJwtBearer(options =>
             {
                 options.SigningKeysUri = new Uri("https://localhost:44369/signing-keys");
+            }, jwtOptions => {
+                jwtOptions.Authority = ""; // TODO: Fetch it from config  configuration["Jwt:Authority"];
+                jwtOptions.Audience = "";  // TODO: Fetch it from config configuration["Jwt:Audience"];
             });
             var app = builder.Build();
 
@@ -29,10 +32,9 @@ namespace ProtectedAPI
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
-
+            }            
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

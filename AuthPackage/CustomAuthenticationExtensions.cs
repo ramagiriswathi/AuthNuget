@@ -50,34 +50,60 @@ namespace AuthPackage
         //     return builder;
         // }
 
-        internal static AuthenticationBuilder AddFdcJwtBearer(this AuthenticationBuilder builder, Action<JwtBearerOptions> configureOptions)
-        {
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>, JwtBearerPostConfigureOptions>());
-            return builder.AddScheme<JwtBearerOptions, CustomJwtBearerHandler>(JwtBearerDefaults.AuthenticationScheme, configureOptions);
-        }
+        
+        //internal static AuthenticationBuilder AddFdcJwtBearer(this AuthenticationBuilder builder, Action<JwtBearerOptions> configureOptions)
+        //{
+        //    builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>, JwtBearerPostConfigureOptions>());
+        //    return builder.AddScheme<JwtBearerOptions, CustomJwtBearerHandler>(JwtBearerDefaults.AuthenticationScheme, configureOptions);
+        //}
 
-        public static IServiceCollection AddFdcJwtBearer(this IServiceCollection services, Action<FdcAuthOptions> configureOptions, Action<JwtBearerOptions>? configureJwtOptions = null)
+        //public static IServiceCollection AddFdcJwtBearer(this IServiceCollection services, Action<FdcAuthOptions> configureOptions, Action<JwtBearerOptions>? configureJwtOptions = null)
+        //{
+        //    services.Configure(configureOptions);
+        //    services.AddHttpClient();
+        //    services.TryAddScoped<IPublicKeyService, HttpPublicKeyService>();
+        //    services.AddAuthentication(options =>
+        //    {
+        //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;                
+        //    }).AddFdcJwtBearer(options =>
+        //    {               
+        //        options.TokenValidationParameters = new()
+        //        {
+        //            ValidateIssuer = true,
+        //            ValidateAudience = true,
+        //            ValidateLifetime = true,
+        //            ValidateIssuerSigningKey = true                    
+        //        };
+
+        //        configureJwtOptions?.Invoke(options);
+        //    });
+        //    return services;
+        //}
+
+        public static AuthenticationBuilder AddFdcJwtBearer(this AuthenticationBuilder builder, Action<FdcAuthOptions> configureOptions)
         {
-            services.Configure(configureOptions);
-            services.AddHttpClient();
-            services.TryAddScoped<IPublicKeyService, HttpPublicKeyService>();
-            services.AddAuthentication(options =>
+            builder.Services.Configure(configureOptions);
+            builder.Services.AddHttpClient();
+            builder.Services.AddMemoryCache();
+            builder.Services.TryAddSingleton<IPublicKeyService, HttpPublicKeyService>();
+            builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;                
-            }).AddFdcJwtBearer(options =>
-            {               
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            });
+
+            return builder.AddScheme<JwtBearerOptions, CustomJwtBearerHandler>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                // Doubt -  When I give TokenValidationParameters here it works
                 options.TokenValidationParameters = new()
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true                    
+                   ValidateIssuerSigningKey = true
                 };
-
-                configureJwtOptions?.Invoke(options);
             });
-            return services;
         }
+
+
+        
     }
 }

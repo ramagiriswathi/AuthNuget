@@ -41,18 +41,20 @@ public class CustomJwtBearerHandler : JwtBearerHandler
             var signingKeys = await _publicKeyService.GetSigningKeysFromJwkAsync(_fdcOptions.SigningKeysUri);
 
             // Configure token validation parameters
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKeys = signingKeys,
 
-                // Set the fetched signing keys
-                ValidIssuer = Options.Authority,
-                ValidAudience = Options.Audience
-            };
+            // Removed below part since we are already doing it in Protected resource and extensions method
+            //var validationParameters = new TokenValidationParameters
+            //{
+            //    ValidateIssuer = true,
+            //    ValidateAudience = true,
+            //    ValidateLifetime = true,
+            //    ValidateIssuerSigningKey = true,
+            //    IssuerSigningKeys = signingKeys,
+
+            //    // Set the fetched signing keys
+            //    ValidIssuer = Options.Authority,
+            //    ValidAudience = Options.Audience
+            //};
 
             // Validate the token
             //var tokenHandler = new JwtSecurityTokenHandler();
@@ -60,8 +62,7 @@ public class CustomJwtBearerHandler : JwtBearerHandler
             //return AuthenticateResult.Success(new AuthenticationTicket(principal, JwtBearerDefaults.AuthenticationScheme));
 
 
-            // Update JwtBearerOptions with the new parameters
-            Options.TokenValidationParameters = validationParameters;
+            Options.TokenValidationParameters.IssuerSigningKeys = signingKeys;
 
             // Delegate the actual token validation to the base JwtBearerHandler
             return await base.HandleAuthenticateAsync();

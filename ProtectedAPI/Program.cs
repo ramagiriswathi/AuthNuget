@@ -1,5 +1,6 @@
 using AuthPackage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace ProtectedAPI
@@ -18,13 +19,27 @@ namespace ProtectedAPI
             builder.Services.AddSwaggerGen();
             // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //     .AddFdcAuth("https://localhost:44369/signing-keys");
-            builder.Services.AddFdcJwtBearer(options =>
-            {
-                options.SigningKeysUri = new Uri("https://localhost:44369/signing-keys");
-            }, jwtOptions => {
-                jwtOptions.Authority = ""; // TODO: Fetch it from config  configuration["Jwt:Authority"];
-                jwtOptions.Audience = "";  // TODO: Fetch it from config configuration["Jwt:Audience"];
-            });
+            //builder.Services.AddFdcJwtBearer(options =>
+            //{
+            //    options.SigningKeysUri = new Uri("https://localhost:44369/signing-keys");
+            //}, jwtOptions => {
+            //    jwtOptions.Authority = ""; // TODO: Fetch it from config  configuration["Jwt:Authority"];
+            //    jwtOptions.Audience = "";  // TODO: Fetch it from config configuration["Jwt:Audience"];
+            //});
+
+            builder.Services
+                .AddAuthentication("FdcCustomerAuth")
+                .AddFdcJwtBearer(options =>
+                {
+                    options.SigningKeysUri = new Uri("my url");
+
+                    // Doubt - When I give TokenValidationParameters here it does not work
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = false
+                    };
+                });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -1,4 +1,4 @@
-using AuthPackage;
+using AuthPackage.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
@@ -18,12 +18,9 @@ namespace ProtectedAPI
             builder.Services.AddSwaggerGen();
             // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //     .AddFdcAuth("https://localhost:44369/signing-keys");
-            builder.Services.AddFdcJwtBearer(options =>
+            builder.Services.AddAuthentication("FdcCustomerAuth").AddFdcJwtBearer(options =>
             {
-                options.SigningKeysUri = new Uri("https://localhost:44369/signing-keys");
-            }, jwtOptions => {
-                jwtOptions.Authority = ""; // TODO: Fetch it from config  configuration["Jwt:Authority"];
-                jwtOptions.Audience = "";  // TODO: Fetch it from config configuration["Jwt:Audience"];
+                options.SigningKeysUri = new Uri("https://localhost:44369/signing-keys");            
             });
             var app = builder.Build();
 

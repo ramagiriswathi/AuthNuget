@@ -11,6 +11,6 @@ namespace AuthPackage
     public interface IPublicKeyService
     {
         //  Task<JsonWebKeySet> GetJwks();
-        Task<IEnumerable<SecurityKey>> GetSigningKeysFromJwkAsync(Uri publicKeyServiceUrl);
+        Task<Dictionary<string, IEnumerable<SecurityKey>>?> GetSigningKeysFromJwkAsync(Uri bffUrl);
     }
 }

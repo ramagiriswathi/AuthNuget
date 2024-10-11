@@ -2,6 +2,8 @@
 
 namespace BFFAPI.Controllers
 {
+
+    // This code is not updated but this will return Dictionary<string,string> to support multi tenant
     public class JwksController : Controller
     {
         private readonly HttpClient _httpClient;

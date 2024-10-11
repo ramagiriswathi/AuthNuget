@@ -20,7 +20,7 @@ namespace AuthPackage
 
         {
 
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClient = httpClientFactory.CreateClient("fdc-client");
 
             _cache = cache;
 
@@ -74,7 +74,7 @@ namespace AuthPackage
 
                 var issuerSecurityKeySet = new Dictionary<string, IEnumerable<SecurityKey>>();
 
-                if (issuerKeys != null)
+                if (issuerKeys != null && issuerKeys.Any())
 
                 {
 

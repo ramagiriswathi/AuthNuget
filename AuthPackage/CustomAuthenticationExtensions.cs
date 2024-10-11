@@ -17,7 +17,9 @@ using System.Security.Claims;
 namespace AuthPackage
 {
     public static class CustomAuthenticationExtensions
+
     {
+
         public static AuthenticationBuilder AddFdcJwtBearer(this AuthenticationBuilder builder, Action<FdcAuthOptions> configureOptions)
 
         {
@@ -200,16 +202,6 @@ namespace AuthPackage
 
 
 
-                            var tokenHandler = new JwtSecurityTokenHandler();
-
-                            var validationParameters = context.Options.TokenValidationParameters;
-
-
-
-                            tokenHandler.ValidateToken(idToken, validationParameters, out var validatedToken);
-
-
-
                             var existingIdentity = context.Principal?.Identity as ClaimsIdentity;
 
                             if (existingIdentity == null)
@@ -224,19 +216,35 @@ namespace AuthPackage
 
 
 
-                            var existingClaims = existingIdentity.Claims.Select(c => (c.Type, c.Value)).ToHashSet();
+                            var tokenHandler = new JwtSecurityTokenHandler();
+
+                            var validationParameters = context.Options.TokenValidationParameters;
 
 
+
+                            tokenHandler.ValidateToken(idToken, validationParameters, out var validatedToken);
 
                             if (validatedToken is JwtSecurityToken jwtToken)
 
                             {
 
+                                var existingClaims = existingIdentity.Claims.Select(c => (c.Type, c.Value)).ToHashSet();
+
+
+
                                 var idTokenClaims = jwtToken.Claims;
 
-                                existingIdentity.AddClaims(
 
-                                  idTokenClaims.Where(c => !existingClaims.Contains((c.Type, c.Value))));
+
+                                if (idTokenClaims != null)
+
+                                {
+
+                                    existingIdentity.AddClaims(
+
+                                      idTokenClaims.Where(c => !existingClaims.Contains((c.Type, c.Value))));
+
+                                }
 
                             }
 
@@ -295,5 +303,6 @@ namespace AuthPackage
             });
 
         }
+
     }
 }

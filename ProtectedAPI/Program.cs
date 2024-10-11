@@ -18,12 +18,9 @@ namespace ProtectedAPI
             builder.Services.AddSwaggerGen();
             // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //     .AddFdcAuth("https://localhost:44369/signing-keys");
-            builder.Services.AddFdcJwtBearer(options =>
+            builder.Services.AddAuthentication().AddFdcJwtBearer(options =>
             {
                 options.SigningKeysUri = new Uri("https://localhost:44369/signing-keys");
-            }, jwtOptions => {
-                jwtOptions.Authority = ""; // TODO: Fetch it from config  configuration["Jwt:Authority"];
-                jwtOptions.Audience = "";  // TODO: Fetch it from config configuration["Jwt:Audience"];
             });
             var app = builder.Build();
 
